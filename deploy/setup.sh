@@ -6,7 +6,7 @@
 set -e
 DOMAIN=${1:?"Informe o domínio: bash setup.sh meudominio.com"}
 APP_DIR="/opt/diario"
-REPO_URL="COLOQUE_A_URL_DO_SEU_REPOSITORIO_GIT_AQUI"
+REPO_URL="https://github.com/bieldev/Diario.git"
 
 echo "🚀 Iniciando instalação do Diário da Helena..."
 
