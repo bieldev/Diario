@@ -129,6 +129,15 @@ if (!pushCols.includes('user_agent'))   db.exec(`ALTER TABLE push_subscriptions 
 if (!pushCols.includes('last_success')) db.exec(`ALTER TABLE push_subscriptions ADD COLUMN last_success INTEGER`)
 if (!pushCols.includes('fail_count'))   db.exec(`ALTER TABLE push_subscriptions ADD COLUMN fail_count INTEGER NOT NULL DEFAULT 0`)
 
+// ─── Indexes ──────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_feedings_startTime ON feedings(startTime DESC);
+  CREATE INDEX IF NOT EXISTS idx_diapers_time       ON diapers(time DESC);
+  CREATE INDEX IF NOT EXISTS idx_sleeps_startTime   ON sleeps(startTime DESC);
+  CREATE INDEX IF NOT EXISTS idx_feeding_notes_id   ON feeding_notes(feeding_id);
+  CREATE INDEX IF NOT EXISTS idx_feedings_feedback  ON feedings(feedback_pending_at) WHERE feedback_notified = 0;
+`)
+
 // ─── Feedings ─────────────────────────────────────────────────────────────────
 export const feedingQueries = {
   insert: db.prepare(`
@@ -197,16 +206,16 @@ export const historyQueries = {
   page: db.prepare(`
     SELECT f.id, 'feeding' AS type, f.startTime AS sortTime,
            f.breast, f.startTime, f.endTime, f.duration, NULL AS contents, NULL AS time, f.breast_log,
-           fn.burp, fn.hiccup, fn.spit_up, fn.behavior, fn.note AS obs_note
+           fn.burp, fn.hiccup, fn.spit_up, fn.behavior, fn.note AS note, NULL AS photo_path
     FROM feedings f
     LEFT JOIN feeding_notes fn ON fn.feeding_id = f.id
     UNION ALL
     SELECT id, 'diaper' AS type, time AS sortTime,
-           NULL, NULL, NULL, NULL, contents, time, NULL, NULL, NULL, NULL, NULL, NULL
+           NULL, NULL, NULL, NULL, contents, time, NULL, NULL, NULL, NULL, NULL, note, photo_path
     FROM diapers
     UNION ALL
     SELECT id, 'sleep' AS type, startTime AS sortTime,
-           NULL, startTime, endTime, duration, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+           NULL, startTime, endTime, duration, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
     FROM sleeps
     ORDER BY sortTime DESC
     LIMIT @limit OFFSET @offset
