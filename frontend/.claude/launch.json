@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "diario-bebe",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/bieldev/Documents/diario/frontend && npm run dev -- --port 5173 --host"],
+      "port": 5173
+    }
+  ]
+}

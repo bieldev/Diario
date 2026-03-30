@@ -1,0 +1,7 @@
+{
+  "name": "diario-helena-root",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && npm run dev"
+  }
+}

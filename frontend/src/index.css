@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/* Dark mode via .dark class no <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand: #7C3AED;
+  --color-brand-light: #EDE9FE;
+  --color-brand-mid: #A78BFA;
+  --color-pink: #EC4899;
+  --color-pink-light: #FCE7F3;
+  --color-amber: #F59E0B;
+  --color-amber-light: #FEF3C7;
+  --color-sky: #3B82F6;
+  --color-sky-light: #DBEAFE;
+  --color-emerald: #10B981;
+  --color-emerald-light: #D1FAE5;
+  --color-bg: #F5F0FF;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  /* Elimina o bounce de scroll do iOS que entrega que é web */
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--color-bg);
+  color: #1a1a2e;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  /* Impede seleção de texto acidental (comportamento nativo) */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Permite seleção em inputs e textareas normalmente */
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+  /* Fonte mínima 16px previne zoom automático no iOS ao focar */
+  font-size: max(16px, 1em);
+}
+
+/* Safe area para iOS com notch */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Scroll suave com momentum no iOS — sem isso o conteúdo faz spring-back */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.dark body {
+  background-color: #130f2a;
+  color: #f0e8ff;
+}
+
+button:active {
+  transform: scale(0.97);
+  transition: transform 0.1s;
+}
+
+/* Safe area for PWA */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
