@@ -56,7 +56,12 @@ function logMeta(item) {
   if (item.type === 'diaper') {
     const label = item.contents === 'xixi' ? 'Xixi' : item.contents === 'coco' ? 'Coco' : 'Xixi + Coco'
     const emoji = item.contents === 'xixi' ? '💧' : item.contents === 'coco' ? '💩' : '💧💩'
-    return { emoji, bg: 'bg-amber-50 dark:bg-amber-950/40', label: `Fralda — ${label}`, sub: formatTime(item.time) }
+    return {
+      emoji, bg: 'bg-amber-50 dark:bg-amber-950/40',
+      label: `Fralda — ${label}`,
+      sub: item.note ? `${formatTime(item.time)} · ${item.note}` : formatTime(item.time),
+      photo_url: item.photo_path ? `/api/diapers/${item.id}/photo` : null,
+    }
   }
   return {
     emoji: '😴', bg: 'bg-sky-50 dark:bg-sky-950/40',
@@ -315,7 +320,7 @@ export function HistoryScreen() {
           </h2>
           <div className="flex flex-col gap-2">
             {dayItems.map((item, i) => {
-              const { emoji, bg, label, sub } = logMeta(item)
+              const { emoji, bg, label, sub, photo_url } = logMeta(item)
               return (
                 <button
                   key={`${item.type}-${item.id}-${i}`}
@@ -325,8 +330,11 @@ export function HistoryScreen() {
                   <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center text-lg shrink-0`}>{emoji}</div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm truncate dark:text-white">{label}</p>
-                    <p className="text-xs text-gray-400 dark:text-slate-400">{sub}</p>
+                    <p className="text-xs text-gray-400 dark:text-slate-400 truncate">{sub}</p>
                   </div>
+                  {photo_url && (
+                    <img src={photo_url} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                  )}
                   <span className="text-gray-300 dark:text-slate-600 text-xs">›</span>
                 </button>
               )

@@ -116,6 +116,10 @@ if (!feedingCols.includes('breast_log')) {
   db.exec(`ALTER TABLE feedings ADD COLUMN breast_log TEXT`)
 }
 
+const diaperCols = db.pragma('table_info(diapers)').map(c => c.name)
+if (!diaperCols.includes('note'))       db.exec(`ALTER TABLE diapers ADD COLUMN note TEXT`)
+if (!diaperCols.includes('photo_path')) db.exec(`ALTER TABLE diapers ADD COLUMN photo_path TEXT`)
+
 const feedingColsAll = db.pragma('table_info(feedings)').map(c => c.name)
 if (!feedingColsAll.includes('feedback_pending_at')) db.exec(`ALTER TABLE feedings ADD COLUMN feedback_pending_at INTEGER`)
 if (!feedingColsAll.includes('feedback_notified'))   db.exec(`ALTER TABLE feedings ADD COLUMN feedback_notified INTEGER NOT NULL DEFAULT 0`)
@@ -155,6 +159,7 @@ export const diaperQueries = {
   today: db.prepare(`SELECT * FROM diapers WHERE time >= @start ORDER BY time DESC`),
   byId:   db.prepare(`SELECT * FROM diapers WHERE id = @id`),
   update: db.prepare(`UPDATE diapers SET contents=@contents, time=@time WHERE id=@id`),
+  updateNote: db.prepare(`UPDATE diapers SET note=@note, photo_path=@photo_path WHERE id=@id`),
   delete: db.prepare(`DELETE FROM diapers WHERE id = @id`),
 }
 

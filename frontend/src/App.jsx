@@ -14,6 +14,7 @@ import { StatsScreen }   from './screens/StatsScreen.jsx'
 import { GrowthScreen }         from './screens/GrowthScreen.jsx'
 import { NotificationsScreen }  from './screens/NotificationsScreen.jsx'
 import { PhotosScreen }         from './screens/PhotosScreen.jsx'
+import { DesignPreviewScreen }  from './screens/DesignPreviewScreen.jsx'
 
 export default function App() {
   const isDark = useNightMode()
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/crescimento"  element={<GrowthScreen />} />
           <Route path="/notificacoes" element={<NotificationsScreen />} />
           <Route path="/fotos"        element={<PhotosScreen />} />
+          <Route path="/preview"      element={<DesignPreviewScreen />} />
         </Routes>
       </main>
       <BottomNav activeType={activeType} />

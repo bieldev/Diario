@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { feedingsApi } from '../api/feedings.js'
@@ -165,6 +165,99 @@ function FeedingFeedbackSheet({ feedingId, onClose }) {
   )
 }
 
+// ─── White Noise Player ───────────────────────────────────────────────────────
+function useWhiteNoise() {
+  const audioRef = useRef(null)
+  const [playing, setPlaying] = useState(false)
+  const [volume, setVolumeState] = useState(0.5)
+
+  useEffect(() => {
+    const audio = new Audio('/white-noise.mp3')
+    audio.loop   = true
+    audio.volume = 0.5
+    audio.preload = 'auto'
+    audioRef.current = audio
+    return () => { audio.pause(); audio.src = '' }
+  }, [])
+
+  const toggle = useCallback(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (playing) {
+      audio.pause()
+      setPlaying(false)
+    } else {
+      audio.play().then(() => setPlaying(true)).catch(console.error)
+    }
+  }, [playing])
+
+  const setVolume = useCallback((v) => {
+    setVolumeState(v)
+    if (audioRef.current) audioRef.current.volume = v
+  }, [])
+
+  return { playing, volume, setVolume, toggle }
+}
+
+function WhiteNoiseBar() {
+  const { playing, volume, setVolume, toggle } = useWhiteNoise()
+
+  return (
+    <div
+      className="fixed left-0 right-0 z-20 max-w-[430px] mx-auto px-3"
+      style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
+    >
+    <div className={`rounded-2xl px-4 py-3 flex items-center gap-3 shadow-md backdrop-blur-sm transition-colors duration-300 ${
+      playing
+        ? 'bg-indigo-50/95 dark:bg-indigo-950/95 border border-indigo-200 dark:border-indigo-800/40'
+        : 'bg-white/95 dark:bg-[#1a1535]/95 border border-gray-100 dark:border-violet-900/20'
+    }`}>
+      {/* Botão play/pause */}
+      <button
+        onClick={toggle}
+        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+          playing ? 'bg-indigo-500 text-white' : 'bg-gray-200 dark:bg-violet-900/40 text-gray-500 dark:text-slate-400'
+        }`}
+      >
+        {playing ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+          </svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5,3 19,12 5,21"/>
+          </svg>
+        )}
+      </button>
+
+      {/* Label */}
+      <div className="flex-1 min-w-0">
+        <p className={`text-xs font-bold leading-tight ${playing ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-500 dark:text-slate-400'}`}>
+          🌫️ Ruído branco
+        </p>
+        {playing && (
+          <p className="text-[10px] text-indigo-400 dark:text-indigo-500">tocando em loop</p>
+        )}
+      </div>
+
+      {/* Volume slider */}
+      <div className="flex items-center gap-2">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 shrink-0">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          {volume > 0.1 && <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>}
+        </svg>
+        <input
+          type="range" min="0" max="1" step="0.05"
+          value={volume}
+          onChange={e => setVolume(Number(e.target.value))}
+          className="w-20 h-1 accent-indigo-500 cursor-pointer"
+        />
+      </div>
+    </div>
+    </div>
+  )
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export function FeedingScreen() {
   const qc = useQueryClient()
@@ -229,7 +322,8 @@ export function FeedingScreen() {
   const canStart = !isRunning && breast && !startMutation.isPending
 
   return (
-    <div className="px-4 pb-4 overflow-y-auto h-full">
+    <div className="flex flex-col h-full">
+    <div className="px-4 overflow-y-auto flex-1" style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))' }}>
       <PageHeader emoji="🤱" title="Amamentação" subtitle="Registre cada mamada" />
 
       <Card className="p-6 mb-5 shadow-md">
@@ -351,6 +445,9 @@ export function FeedingScreen() {
       {feedbackId && (
         <FeedingFeedbackSheet feedingId={feedbackId} onClose={() => setFeedbackId(null)} />
       )}
+    </div>
+
+    <WhiteNoiseBar />
     </div>
   )
 }
