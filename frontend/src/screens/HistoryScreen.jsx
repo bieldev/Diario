@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { historyApi } from '../api/history.js'
 import { feedingsApi } from '../api/feedings.js'
@@ -355,6 +355,24 @@ export function HistoryScreen() {
 
   const closeSheet = () => { setSelectedItem(null); setEditingItem(null) }
 
+  // Sobe o sheet quando teclado/seletor abre no iOS (visual viewport < layout viewport)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+  useEffect(() => {
+    if (!selectedItem) { setKeyboardHeight(0); return }
+    const vv = window.visualViewport
+    if (!vv) return
+    const update = () => {
+      const kh = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      setKeyboardHeight(kh)
+    }
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
+    }
+  }, [selectedItem])
+
   return (
     <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <div className="flex items-center justify-between pt-5 pb-4">
@@ -427,7 +445,7 @@ export function HistoryScreen() {
 
       {/* Bottom sheet overlay */}
       {selectedItem && (
-        <div className="fixed inset-0 z-[60] flex flex-col justify-end" onClick={closeSheet}>
+        <div className="fixed inset-x-0 top-0 z-[60] flex flex-col justify-end" style={{ bottom: keyboardHeight }} onClick={closeSheet}>
           <div className="absolute inset-0 bg-black/40" />
           <div
             className="relative bg-white dark:bg-[#1e1640] rounded-t-3xl shadow-2xl flex flex-col"
