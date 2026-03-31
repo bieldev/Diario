@@ -432,7 +432,7 @@ export function HistoryScreen() {
 
       {/* Bottom sheet overlay */}
       {selectedItem && (
-        <div className="fixed inset-x-0 top-0 z-[60] flex flex-col justify-end" style={{ bottom: keyboardHeight }} onClick={closeSheet}>
+        <div className="fixed inset-x-0 top-0 z-[60] flex flex-col justify-end" style={{ bottom: `max(${keyboardHeight}px, calc(4rem + env(safe-area-inset-bottom, 0px)))` }} onClick={closeSheet}>
           <div className="absolute inset-0 bg-black/40" />
           <div
             className="relative bg-white dark:bg-[#1e1640] rounded-t-3xl shadow-2xl flex flex-col min-h-0"
