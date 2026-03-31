@@ -19,6 +19,16 @@ import { DesignPreviewScreen }  from './screens/DesignPreviewScreen.jsx'
 export default function App() {
   const isDark = useNightMode()
 
+  // Fix iOS PWA: 100vh ≠ window.innerHeight em standalone — usa CSS variable real
+  useEffect(() => {
+    const setAppHeight = () => {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`)
+    }
+    setAppHeight()
+    window.addEventListener('resize', setAppHeight)
+    return () => window.removeEventListener('resize', setAppHeight)
+  }, [])
+
   // Sincroniza theme-color da barra do sistema com o dark mode
   useEffect(() => {
     const meta = document.getElementById('theme-color-meta')
@@ -35,7 +45,7 @@ export default function App() {
   const activeType = data?.active?.type || null
 
   return (
-    <div className="max-w-[430px] mx-auto h-screen flex flex-col bg-[#F5F0FF] dark:bg-[#130f2a] relative overflow-hidden transition-colors duration-400">
+    <div className="max-w-[430px] mx-auto flex flex-col bg-[#F5F0FF] dark:bg-[#130f2a] relative overflow-hidden transition-colors duration-400" style={{ height: 'var(--app-height, 100dvh)' }}>
       <InstallBanner />
       <main className="flex-1 overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
         <Routes>
