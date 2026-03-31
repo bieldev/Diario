@@ -448,12 +448,12 @@ export function HistoryScreen() {
         <div className="fixed inset-x-0 top-0 z-[60] flex flex-col justify-end" style={{ bottom: keyboardHeight }} onClick={closeSheet}>
           <div className="absolute inset-0 bg-black/40" />
           <div
-            className="relative bg-white dark:bg-[#1e1640] rounded-t-3xl shadow-2xl flex flex-col"
+            className="relative bg-white dark:bg-[#1e1640] rounded-t-3xl shadow-2xl flex flex-col min-h-0"
             style={{ maxHeight: '85vh' }}
             onClick={e => e.stopPropagation()}
           >
             <div className="w-10 h-1 bg-gray-200 dark:bg-violet-800 rounded-full mx-auto mt-4 mb-3 shrink-0" />
-            <div className="overflow-y-auto overscroll-y-none px-5 pb-8">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-none px-5 pb-8">
               {editingItem ? (
                 <EditForm
                   item={editingItem}
