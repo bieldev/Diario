@@ -1,16 +1,18 @@
 import { feedingQueries, feedingNotesQueries, feedingFeedbackQueries, activeTimerQueries, activeBreastLogQueries, notifSettingsQueries, startOfDay, daysAgo } from '../db.js'
 import { sendPushToAll } from '../services/notifier.js'
 
+const TZ = 'America/Sao_Paulo'
+
 function isQuietNow(s) {
   if (!s.quiet_hours) return false
-  const h = new Date().getHours()
+  const h = parseInt(new Date().toLocaleString('pt-BR', { timeZone: TZ, hour: '2-digit', hour12: false }), 10)
   return s.quiet_start > s.quiet_end
     ? (h >= s.quiet_start || h < s.quiet_end)
     : (h >= s.quiet_start && h < s.quiet_end)
 }
 
 function fmtTime(ms) {
-  return new Date(ms).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return new Date(ms).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: TZ })
 }
 
 function calcDuration(startTime, endTime) {

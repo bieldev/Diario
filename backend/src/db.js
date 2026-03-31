@@ -307,15 +307,21 @@ export const photoQueries = {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+// Timezone fixa Brasil (sem DST desde abril/2019)
+const BR_TZ = 'America/Sao_Paulo'
+
+function dateStrInBR(date = new Date()) {
+  // Retorna "YYYY-MM-DD" no fuso de Brasília
+  return new Intl.DateTimeFormat('sv-SE', { timeZone: BR_TZ }).format(date)
+}
+
 export function startOfDay(date = new Date()) {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  return d.getTime()
+  // Meia-noite em Brasília = YYYY-MM-DDT00:00:00-03:00
+  return new Date(`${dateStrInBR(date)}T00:00:00-03:00`).getTime()
 }
 
 export function daysAgo(n) {
   const d = new Date()
   d.setDate(d.getDate() - n)
-  d.setHours(0, 0, 0, 0)
-  return d.getTime()
+  return new Date(`${dateStrInBR(d)}T00:00:00-03:00`).getTime()
 }

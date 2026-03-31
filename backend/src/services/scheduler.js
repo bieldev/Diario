@@ -4,9 +4,11 @@ import { notifSettingsQueries, activeTimerQueries, feedingFeedbackQueries } from
 import { sendPushToAll, lastNotifOf } from './notifier.js'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+const TZ = 'America/Sao_Paulo'
+
 function isQuietNow(settings) {
   if (!settings.quiet_hours) return false
-  const h = new Date().getHours()
+  const h = parseInt(new Date().toLocaleString('pt-BR', { timeZone: TZ, hour: '2-digit', hour12: false }), 10)
   const { quiet_start: s, quiet_end: e } = settings
   return s > e ? (h >= s || h < e) : (h >= s && h < e)
 }
@@ -150,8 +152,8 @@ export function startScheduler() {
     }
   })
 
-  // Resumo diário às 21h
-  cron.schedule('0 21 * * *', sendDailySummary)
+  // Resumo diário às 21h (horário de Brasília = 00:00 UTC)
+  cron.schedule('0 0 * * *', sendDailySummary)
 
   console.log('⏰ Scheduler de notificações iniciado')
 }
