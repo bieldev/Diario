@@ -89,8 +89,8 @@ function initEditState(item) {
 }
 
 // ─── Edit form UI ─────────────────────────────────────────────────────────────
-function EditForm({ item, onSave, onCancel, isSaving }) {
-  const [form, setForm] = useState(() => initEditState(item))
+// EditForm só renderiza os campos — botões ficam no rodapé fixo do sheet
+function EditForm({ item, form, setForm }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const inputCls = 'w-full rounded-xl border border-gray-200 dark:border-violet-900/40 bg-gray-50 dark:bg-[#130f2a] px-3 py-2 text-sm dark:text-white'
@@ -221,21 +221,6 @@ function EditForm({ item, onSave, onCancel, isSaving }) {
         </>
       )}
 
-      <div className="flex gap-2 mt-1">
-        <button
-          onClick={onCancel}
-          className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gray-100 dark:bg-violet-950/40 text-gray-500 dark:text-slate-400"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={() => onSave(form)}
-          disabled={isSaving}
-          className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-violet-600 text-white disabled:opacity-50"
-        >
-          {isSaving ? 'Salvando...' : 'Salvar'}
-        </button>
-      </div>
     </div>
   )
 }
@@ -284,6 +269,7 @@ export function HistoryScreen() {
   const queryClient = useQueryClient()
   const [selectedItem, setSelectedItem] = useState(null)  // action sheet
   const [editingItem, setEditingItem]   = useState(null)  // edit form
+  const [editForm, setEditForm]         = useState(null)  // form state (fora do EditForm para botões fixos)
 
   const {
     data,
@@ -346,14 +332,15 @@ export function HistoryScreen() {
         endTime:   form.endTime   ? new Date(form.endTime).getTime()   : undefined,
       })
     },
-    onSuccess: () => { invalidate(); setEditingItem(null); setSelectedItem(null) },
+    onSuccess: () => { invalidate(); closeSheet() },
   })
 
   const allItems = data?.pages.flatMap(p => p.items) ?? []
   const total    = data?.pages[0]?.total ?? 0
   const groups   = groupByDay(allItems, item => item.sortTime)
 
-  const closeSheet = () => { setSelectedItem(null); setEditingItem(null) }
+  const closeSheet = () => { setSelectedItem(null); setEditingItem(null); setEditForm(null) }
+  const startEdit  = (item) => { setEditingItem(item); setEditForm(initEditState(item)) }
 
   // Sobe o sheet quando teclado/seletor abre no iOS (visual viewport < layout viewport)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
@@ -453,24 +440,39 @@ export function HistoryScreen() {
             onClick={e => e.stopPropagation()}
           >
             <div className="w-10 h-1 bg-gray-200 dark:bg-violet-800 rounded-full mx-auto mt-4 mb-3 shrink-0" />
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-none px-5 pb-8">
-              {editingItem ? (
-                <EditForm
-                  item={editingItem}
-                  onCancel={() => setEditingItem(null)}
-                  onSave={(form) => updateMutation.mutate({ item: editingItem, form })}
-                  isSaving={updateMutation.isPending}
-                />
-              ) : (
-                <ActionSheet
-                  item={selectedItem}
-                  onClose={closeSheet}
-                  onEdit={() => setEditingItem(selectedItem)}
-                  onDelete={() => deleteMutation.mutate(selectedItem)}
-                  isDeleting={deleteMutation.isPending}
-                />
-              )}
+
+            {/* Conteúdo rolável */}
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-none px-5 pb-2">
+              {editingItem
+                ? <EditForm item={editingItem} form={editForm} setForm={setEditForm} />
+                : <ActionSheet
+                    item={selectedItem}
+                    onClose={closeSheet}
+                    onEdit={() => startEdit(selectedItem)}
+                    onDelete={() => deleteMutation.mutate(selectedItem)}
+                    isDeleting={deleteMutation.isPending}
+                  />
+              }
             </div>
+
+            {/* Rodapé fixo com botões — nunca fica sob o seletor/teclado */}
+            {editingItem && (
+              <div className="shrink-0 flex gap-2 px-5 pt-3 pb-5 safe-bottom border-t border-gray-100 dark:border-violet-900/30 bg-white dark:bg-[#1e1640]">
+                <button
+                  onClick={() => { setEditingItem(null); setEditForm(null) }}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gray-100 dark:bg-violet-950/40 text-gray-500 dark:text-slate-400"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => updateMutation.mutate({ item: editingItem, form: editForm })}
+                  disabled={updateMutation.isPending}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-violet-600 text-white disabled:opacity-50"
+                >
+                  {updateMutation.isPending ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
