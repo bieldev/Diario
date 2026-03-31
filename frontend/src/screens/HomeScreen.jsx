@@ -4,7 +4,7 @@ import { dashboardApi } from '../api/dashboard.js'
 import { ActiveBanner } from '../components/ActiveBanner.jsx'
 import { formatTime, formatDuration, timeAgo } from '../utils/format.js'
 
-function StatCard({ emoji, label, value, colorClass, bgClass, darkBgClass }) {
+function StatCard({ emoji, label, value, subLabel, colorClass, bgClass, darkBgClass }) {
   return (
     <div className={`bg-white dark:bg-[#1e1640] rounded-2xl p-4 shadow-sm transition-colors duration-400`}>
       <div className="flex items-center gap-2 mb-2">
@@ -12,6 +12,7 @@ function StatCard({ emoji, label, value, colorClass, bgClass, darkBgClass }) {
         <span className="text-xs text-gray-500 dark:text-slate-400 font-semibold">{label}</span>
       </div>
       <p className={`text-2xl font-extrabold ${colorClass}`}>{value}</p>
+      {subLabel && <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">{subLabel}</p>}
     </div>
   )
 }
@@ -73,7 +74,7 @@ export function HomeScreen() {
         <div className="grid grid-cols-2 gap-2.5 mb-5">
           <StatCard emoji="🤱" label="Mamadas"    value={data?.today?.feedingsCount ?? 0}  colorClass="text-pink-500"   bgClass="bg-pink-50"   darkBgClass="dark:bg-pink-950/40" />
           <StatCard emoji="👶" label="Fraldas"    value={data?.today?.diapersCount ?? 0}   colorClass="text-amber-500"  bgClass="bg-amber-50"  darkBgClass="dark:bg-amber-950/40" />
-          <StatCard emoji="😴" label="Sono total" value={formatDuration(data?.today?.totalSleepSec)} colorClass="text-sky-500" bgClass="bg-sky-50" darkBgClass="dark:bg-sky-950/40" />
+          <StatCard emoji="😴" label="Sono total" value={formatDuration(data?.today?.totalSleepSec)} subLabel={`${data?.today?.sleepsCount ?? 0} ${(data?.today?.sleepsCount ?? 0) === 1 ? 'soneca' : 'sonecas'}`} colorClass="text-sky-500" bgClass="bg-sky-50" darkBgClass="dark:bg-sky-950/40" />
           <StatCard emoji="📅" label="Total"      value={(data?.today?.feedingsCount ?? 0) + (data?.today?.diapersCount ?? 0) + (data?.today?.sleepsCount ?? 0)} colorClass="text-violet-600 dark:text-violet-400" bgClass="bg-violet-50" darkBgClass="dark:bg-violet-950/40" />
         </div>
       )}
