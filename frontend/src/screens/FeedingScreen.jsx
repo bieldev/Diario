@@ -172,7 +172,7 @@ function useWhiteNoise() {
   const [volume, setVolumeState] = useState(0.5)
 
   useEffect(() => {
-    const audio = new Audio('/white-noise.mp3')
+    const audio = new Audio('/white-noise.ogg')
     audio.loop   = true
     audio.volume = 0.5
     audio.preload = 'auto'

@@ -73,7 +73,14 @@ function logMeta(item) {
 // ─── Edit form state by type ──────────────────────────────────────────────────
 function initEditState(item) {
   if (item.type === 'feeding') {
-    return { breast: item.breast, startTime: msToDatetimeLocal(item.startTime), endTime: msToDatetimeLocal(item.endTime) }
+    let segments = null
+    if (item.breast_log) {
+      try {
+        const parsed = JSON.parse(item.breast_log)
+        if (parsed.length > 1) segments = parsed.map(s => ({ breast: s.breast, duration: s.duration }))
+      } catch {}
+    }
+    return { breast: item.breast, startTime: msToDatetimeLocal(item.startTime), endTime: msToDatetimeLocal(item.endTime), segments }
   }
   if (item.type === 'diaper') {
     return { contents: item.contents, time: msToDatetimeLocal(item.time) }
@@ -93,23 +100,77 @@ function EditForm({ item, onSave, onCancel, isSaving }) {
     <div className="flex flex-col gap-3">
       {item.type === 'feeding' && (
         <>
-          <div>
-            <label className={labelCls}>Peito</label>
-            <div className="flex gap-2">
-              {[['E', '← Esquerdo'], ['D', 'Direito →'], ['A', '↔ Ambos']].map(([v, l]) => (
-                <button
-                  key={v}
-                  onClick={() => set('breast', v)}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors
-                    ${form.breast === v
-                      ? 'bg-pink-500 text-white border-pink-500'
-                      : 'bg-gray-50 dark:bg-[#130f2a] text-gray-600 dark:text-slate-300 border-gray-200 dark:border-violet-900/40'}`}
-                >
-                  {l}
-                </button>
-              ))}
+          {form.segments ? (
+            <div>
+              <label className={labelCls}>Segmentos por peito</label>
+              <div className="flex flex-col gap-2">
+                {form.segments.map((seg, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 dark:text-slate-500 w-4 shrink-0">{i + 1}.</span>
+                    <div className="flex gap-1">
+                      {[['E', '← E'], ['D', 'D →']].map(([v, l]) => (
+                        <button
+                          key={v}
+                          onClick={() => {
+                            const segs = form.segments.map((s, j) => j === i ? { ...s, breast: v } : s)
+                            set('segments', segs)
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors
+                            ${seg.breast === v
+                              ? 'bg-pink-500 text-white border-pink-500'
+                              : 'bg-gray-50 dark:bg-[#130f2a] text-gray-600 dark:text-slate-300 border-gray-200 dark:border-violet-900/40'}`}
+                        >
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1 flex-1">
+                      <input
+                        type="number" min="0"
+                        value={Math.floor(seg.duration / 60)}
+                        onChange={e => {
+                          const mins = Math.max(0, Number(e.target.value))
+                          const segs = form.segments.map((s, j) => j === i ? { ...s, duration: mins * 60 + (s.duration % 60) } : s)
+                          set('segments', segs)
+                        }}
+                        className="w-14 rounded-lg border border-gray-200 dark:border-violet-900/40 bg-gray-50 dark:bg-[#130f2a] px-2 py-1.5 text-sm text-center dark:text-white"
+                      />
+                      <span className="text-xs text-gray-400">min</span>
+                      <input
+                        type="number" min="0" max="59"
+                        value={seg.duration % 60}
+                        onChange={e => {
+                          const secs = Math.min(59, Math.max(0, Number(e.target.value)))
+                          const segs = form.segments.map((s, j) => j === i ? { ...s, duration: Math.floor(s.duration / 60) * 60 + secs } : s)
+                          set('segments', segs)
+                        }}
+                        className="w-14 rounded-lg border border-gray-200 dark:border-violet-900/40 bg-gray-50 dark:bg-[#130f2a] px-2 py-1.5 text-sm text-center dark:text-white"
+                      />
+                      <span className="text-xs text-gray-400">seg</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <label className={labelCls}>Peito</label>
+              <div className="flex gap-2">
+                {[['E', '← Esquerdo'], ['D', 'Direito →'], ['A', '↔ Ambos']].map(([v, l]) => (
+                  <button
+                    key={v}
+                    onClick={() => set('breast', v)}
+                    className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors
+                      ${form.breast === v
+                        ? 'bg-pink-500 text-white border-pink-500'
+                        : 'bg-gray-50 dark:bg-[#130f2a] text-gray-600 dark:text-slate-300 border-gray-200 dark:border-violet-900/40'}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div>
             <label className={labelCls}>Início</label>
             <input type="datetime-local" className={inputCls} value={form.startTime} onChange={e => set('startTime', e.target.value)} />
@@ -257,10 +318,21 @@ export function HistoryScreen() {
   const updateMutation = useMutation({
     mutationFn: ({ item, form }) => {
       if (item.type === 'feeding') {
+        let breast = form.breast
+        let extraFields = {}
+        if (form.segments) {
+          const unique = [...new Set(form.segments.map(s => s.breast))]
+          breast = unique.length > 1 ? 'A' : unique[0]
+          extraFields = {
+            breast_log: JSON.stringify(form.segments),
+            duration: form.segments.reduce((acc, s) => acc + s.duration, 0),
+          }
+        }
         return feedingsApi.update(item.id, {
-          breast:    form.breast,
+          breast,
           startTime: form.startTime ? new Date(form.startTime).getTime() : undefined,
           endTime:   form.endTime   ? new Date(form.endTime).getTime()   : undefined,
+          ...extraFields,
         })
       }
       if (item.type === 'diaper') {
@@ -355,29 +427,32 @@ export function HistoryScreen() {
 
       {/* Bottom sheet overlay */}
       {selectedItem && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end" onClick={closeSheet}>
+        <div className="fixed inset-0 z-[60] flex flex-col justify-end" onClick={closeSheet}>
           <div className="absolute inset-0 bg-black/40" />
           <div
-            className="relative bg-white dark:bg-[#1e1640] rounded-t-3xl px-5 pt-4 pb-8 shadow-2xl"
+            className="relative bg-white dark:bg-[#1e1640] rounded-t-3xl shadow-2xl flex flex-col"
+            style={{ maxHeight: '85vh' }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="w-10 h-1 bg-gray-200 dark:bg-violet-800 rounded-full mx-auto mb-4" />
-            {editingItem ? (
-              <EditForm
-                item={editingItem}
-                onCancel={() => setEditingItem(null)}
-                onSave={(form) => updateMutation.mutate({ item: editingItem, form })}
-                isSaving={updateMutation.isPending}
-              />
-            ) : (
-              <ActionSheet
-                item={selectedItem}
-                onClose={closeSheet}
-                onEdit={() => setEditingItem(selectedItem)}
-                onDelete={() => deleteMutation.mutate(selectedItem)}
-                isDeleting={deleteMutation.isPending}
-              />
-            )}
+            <div className="w-10 h-1 bg-gray-200 dark:bg-violet-800 rounded-full mx-auto mt-4 mb-3 shrink-0" />
+            <div className="overflow-y-auto overscroll-y-none px-5 pb-8">
+              {editingItem ? (
+                <EditForm
+                  item={editingItem}
+                  onCancel={() => setEditingItem(null)}
+                  onSave={(form) => updateMutation.mutate({ item: editingItem, form })}
+                  isSaving={updateMutation.isPending}
+                />
+              ) : (
+                <ActionSheet
+                  item={selectedItem}
+                  onClose={closeSheet}
+                  onEdit={() => setEditingItem(selectedItem)}
+                  onDelete={() => deleteMutation.mutate(selectedItem)}
+                  isDeleting={deleteMutation.isPending}
+                />
+              )}
+            </div>
           </div>
         </div>
       )}

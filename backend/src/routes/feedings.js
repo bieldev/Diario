@@ -148,15 +148,16 @@ export async function feedingRoutes(fastify) {
     const row = feedingQueries.byId.get({ id })
     if (!row) return reply.status(404).send({ error: 'Não encontrado' })
 
-    const { breast, startTime, endTime } = request.body
+    const { breast, startTime, endTime, breast_log, duration } = request.body
     if (breast && !['E', 'D', 'A'].includes(breast)) {
       return reply.status(400).send({ error: 'Peito inválido' })
     }
     const newBreast     = breast     ?? row.breast
     const newStartTime  = startTime  ?? row.startTime
     const newEndTime    = endTime    ?? row.endTime
-    const newDuration   = (newStartTime && newEndTime) ? calcDuration(newStartTime, newEndTime) : row.duration
-    feedingQueries.update.run({ id, breast: newBreast, startTime: newStartTime, endTime: newEndTime, duration: newDuration })
+    const newBreastLog  = breast_log !== undefined ? breast_log : row.breast_log
+    const newDuration   = duration   ?? ((newStartTime && newEndTime) ? calcDuration(newStartTime, newEndTime) : row.duration)
+    feedingQueries.update.run({ id, breast: newBreast, startTime: newStartTime, endTime: newEndTime, duration: newDuration, breast_log: newBreastLog })
     return feedingQueries.byId.get({ id })
   })
 

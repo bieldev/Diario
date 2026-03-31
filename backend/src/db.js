@@ -156,7 +156,7 @@ export const feedingQueries = {
   `),
   byId:   db.prepare(`SELECT * FROM feedings WHERE id = @id`),
   update: db.prepare(`
-    UPDATE feedings SET breast=@breast, startTime=@startTime, endTime=@endTime, duration=@duration WHERE id=@id
+    UPDATE feedings SET breast=@breast, startTime=@startTime, endTime=@endTime, duration=@duration, breast_log=@breast_log WHERE id=@id
   `),
   delete: db.prepare(`DELETE FROM feedings WHERE id = @id`),
 }
