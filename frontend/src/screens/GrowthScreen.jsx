@@ -194,7 +194,11 @@ export function GrowthScreen() {
 
   const birthMutation = useMutation({
     mutationFn: (value) => measurementsApi.setBirthDate(value),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: BIRTH_QUERY_KEY }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BIRTH_QUERY_KEY })
+      setEditingBirth(false)
+    },
+    onError: () => alert('Erro ao salvar a data de nascimento. Tente novamente.'),
   })
 
   const addMutation = useMutation({
@@ -209,7 +213,6 @@ export function GrowthScreen() {
 
   const saveBirth = () => {
     birthMutation.mutate(tempBirth)
-    setEditingBirth(false)
   }
 
   const weightData = buildChartData(WHO_WEIGHT, measurements, birthDate, 'weight')
@@ -239,10 +242,10 @@ export function GrowthScreen() {
               />
               <button
                 onClick={saveBirth}
-                disabled={!tempBirth}
+                disabled={!tempBirth || birthMutation.isPending}
                 className="px-4 py-2 rounded-xl text-sm font-bold bg-violet-600 text-white disabled:opacity-40"
               >
-                Salvar
+                {birthMutation.isPending ? 'Salvando...' : 'Salvar'}
               </button>
             </div>
           </div>
