@@ -51,7 +51,7 @@ export function HomeScreen() {
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite'
 
   return (
-    <div className="px-4 pb-4 overflow-y-auto h-full">
+    <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <div className="pt-5 pb-4">
         <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">{greeting} 👋</p>
         <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white mt-0.5">Diário da Helena</h1>

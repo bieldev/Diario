@@ -138,7 +138,7 @@ export function PhotosScreen() {
   const groups = groupByDay(photos)
 
   return (
-    <div className="px-4 pb-4 overflow-y-auto h-full">
+    <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <PageHeader emoji="📸" title="Diário de Fotos" subtitle="Memórias da Helena" />
 
       {/* Upload */}

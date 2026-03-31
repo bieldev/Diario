@@ -284,7 +284,7 @@ export function HistoryScreen() {
   const closeSheet = () => { setSelectedItem(null); setEditingItem(null) }
 
   return (
-    <div className="px-4 pb-4 overflow-y-auto h-full">
+    <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <div className="flex items-center justify-between pt-5 pb-4">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">📋 Histórico</h1>

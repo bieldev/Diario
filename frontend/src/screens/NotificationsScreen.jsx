@@ -99,7 +99,7 @@ export function NotificationsScreen() {
   const status = statusInfo()
 
   return (
-    <div className="px-4 pb-4 overflow-y-auto h-full">
+    <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <div className="pt-5 pb-4">
         <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">🔔 Notificações</h1>
         <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Push — funciona com o app fechado</p>

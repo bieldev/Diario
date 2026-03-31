@@ -149,7 +149,7 @@ export function DiaperScreen() {
   })
 
   return (
-    <div className="px-4 pb-4 overflow-y-auto h-full">
+    <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <PageHeader emoji="👶" title="Fralda" subtitle="O que tinha na fralda?" />
 
       <Card className="p-6 mb-5 shadow-md">

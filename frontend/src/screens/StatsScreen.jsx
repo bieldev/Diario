@@ -158,7 +158,7 @@ export function StatsScreen() {
   ].filter(b => b.value > 0)
 
   return (
-    <div className="px-4 pb-4 overflow-y-auto h-full">
+    <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <PageHeader emoji="📊" title="Estatísticas" subtitle="Últimos 7 dias" />
 
       {/* KPIs principais */}

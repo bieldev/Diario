@@ -64,7 +64,7 @@ export function SleepScreen() {
   const totalSleepToday = today.reduce((acc, s) => acc + (s.duration || 0), 0)
 
   return (
-    <div className="px-4 pb-4 overflow-y-auto h-full">
+    <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <PageHeader emoji="😴" title="Sono" subtitle="Acompanhe o sono da Helena" />
 
       <Card className="p-6 mb-5 shadow-md">

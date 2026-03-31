@@ -323,7 +323,7 @@ export function FeedingScreen() {
 
   return (
     <div className="flex flex-col h-full">
-    <div className="px-4 overflow-y-auto flex-1" style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="px-4 overflow-y-auto overscroll-y-none flex-1" style={{ paddingBottom: '64px' }}>
       <PageHeader emoji="🤱" title="Amamentação" subtitle="Registre cada mamada" />
 
       <Card className="p-6 mb-5 shadow-md">
