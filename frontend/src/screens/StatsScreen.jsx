@@ -57,12 +57,21 @@ function buildDailyData(feedings, sleeps, diapers) {
   for (const f of feedings) { const k = addDay(f.startTime); days[k].mamadas++ }
   for (const d of diapers)  { const k = addDay(d.time);      days[k].fraldas++ }
   for (const s of sleeps) {
-    const k = addDay(s.startTime)
-    const dur = Math.round((s.duration || 0) / 60)
-    days[k].sonoMin += dur
-    const { day, night } = splitSleepDayNight(s.startTime, s.endTime)
-    days[k].sonoDia   += Math.round(day)
-    days[k].sonoNoite += Math.round(night)
+    if (!s.endTime || s.endTime <= s.startTime) continue
+    // Divide sono que cruza meia-noite entre os dias corretos
+    let cur = s.startTime
+    while (cur < s.endTime) {
+      const dayStart = startOfDay(cur)
+      const dayEnd = dayStart + 86400000 // +24h
+      const segEnd = Math.min(s.endTime, dayEnd)
+      const segMs = segEnd - cur
+      const k = addDay(cur)
+      days[k].sonoMin += Math.round(segMs / 60000)
+      const { day, night } = splitSleepDayNight(cur, segEnd)
+      days[k].sonoDia   += Math.round(day)
+      days[k].sonoNoite += Math.round(night)
+      cur = dayEnd
+    }
   }
   return Object.values(days).sort((a, b) => a.ts - b.ts).slice(-7)
 }

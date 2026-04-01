@@ -7,7 +7,14 @@ export async function dashboardRoutes(fastify) {
     const diapersToday = diaperQueries.today.all({ start })
     const sleepsToday = sleepQueries.today.all({ start })
     const active = activeTimerQueries.get.get() || null
-    const totalSleepSec = sleepsToday.reduce((acc, s) => acc + (s.duration || 0), 0)
+
+    // Sono que cruza meia-noite: conta apenas a porção dentro de "hoje"
+    const now = Date.now()
+    const totalSleepSec = sleepsToday.reduce((acc, s) => {
+      const effectiveStart = Math.max(s.startTime, start)
+      const effectiveEnd = s.endTime || now
+      return acc + Math.max(0, Math.floor((effectiveEnd - effectiveStart) / 1000))
+    }, 0)
     const lastFeeding = feedingQueries.all.get()
     const lastDiaper = diaperQueries.all.get()
 
@@ -29,7 +36,7 @@ export async function dashboardRoutes(fastify) {
       today: {
         feedingsCount: feedingsToday.length,
         diapersCount: diapersToday.length,
-        sleepsCount: sleepsToday.length,
+        sleepsCount: sleepsToday.filter(s => !s.endTime || s.endTime >= start).length,
         totalSleepSec,
       },
       lastFeeding: lastFeeding || null,

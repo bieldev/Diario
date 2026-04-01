@@ -180,10 +180,10 @@ export const sleepQueries = {
   `),
   all: db.prepare(`SELECT * FROM sleeps ORDER BY startTime DESC`),
   today: db.prepare(`
-    SELECT * FROM sleeps WHERE startTime >= @start ORDER BY startTime DESC
+    SELECT * FROM sleeps WHERE startTime >= @start OR (endTime > @start AND startTime < @start) ORDER BY startTime DESC
   `),
   last7days: db.prepare(`
-    SELECT * FROM sleeps WHERE startTime >= @start ORDER BY startTime ASC
+    SELECT * FROM sleeps WHERE startTime >= @start OR (endTime > @start AND startTime < @start) ORDER BY startTime ASC
   `),
   byId:   db.prepare(`SELECT * FROM sleeps WHERE id = @id`),
   update: db.prepare(`
