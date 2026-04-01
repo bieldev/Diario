@@ -7,7 +7,21 @@ import { formatTime, formatDuration, formatTimerDisplay } from '../utils/format.
 import { haptics } from '../utils/haptics.js'
 import { useState } from 'react'
 
+function sleepSplitInfo(sleep) {
+  if (!sleep.endTime || !sleep.startTime) return null
+  const dStart = new Date(sleep.startTime)
+  const dEnd = new Date(sleep.endTime)
+  if (dStart.toDateString() === dEnd.toDateString()) return null
+  const midnight = new Date(dEnd)
+  midnight.setHours(0, 0, 0, 0)
+  const beforeSec = Math.floor((midnight.getTime() - sleep.startTime) / 1000)
+  const afterSec = Math.floor((sleep.endTime - midnight.getTime()) / 1000)
+  const dayLabel = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
+  return `${formatDuration(beforeSec)} (${dayLabel(dStart)}) + ${formatDuration(afterSec)} (${dayLabel(dEnd)})`
+}
+
 function SleepItem({ sleep }) {
+  const split = sleepSplitInfo(sleep)
   return (
     <div className="bg-white dark:bg-[#1e1640] rounded-xl px-4 py-3 shadow-sm flex items-center gap-3 transition-colors duration-400">
       <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/40 flex items-center justify-center text-lg shrink-0">😴</div>
@@ -16,6 +30,7 @@ function SleepItem({ sleep }) {
           {formatTime(sleep.startTime)} → {sleep.endTime ? formatTime(sleep.endTime) : '...'}
         </p>
         <p className="text-xs text-gray-400 dark:text-slate-400">Duração: {formatDuration(sleep.duration)}</p>
+        {split && <p className="text-[10px] text-sky-400 dark:text-sky-500 mt-0.5">↪ {split}</p>}
       </div>
       <span className="text-sm font-bold text-sky-500 shrink-0">{formatDuration(sleep.duration)}</span>
     </div>
