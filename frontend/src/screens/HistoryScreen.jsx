@@ -63,10 +63,28 @@ function logMeta(item) {
       photo_url: item.photo_path ? `/api/diapers/${item.id}/photo` : null,
     }
   }
+  const base = `${formatTime(item.startTime)} → ${item.endTime ? formatTime(item.endTime) : '...'} · ${formatDuration(item.duration)}`
+
+  // Detecta sono que cruza meia-noite e mostra divisão por dia
+  let split = null
+  if (item.endTime && item.startTime) {
+    const dStart = new Date(item.startTime)
+    const dEnd = new Date(item.endTime)
+    if (dStart.toDateString() !== dEnd.toDateString()) {
+      const midnight = new Date(dEnd)
+      midnight.setHours(0, 0, 0, 0)
+      const beforeSec = Math.floor((midnight.getTime() - item.startTime) / 1000)
+      const afterSec = Math.floor((item.endTime - midnight.getTime()) / 1000)
+      const dayLabel = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
+      split = `${formatDuration(beforeSec)} (${dayLabel(dStart)}) + ${formatDuration(afterSec)} (${dayLabel(dEnd)})`
+    }
+  }
+
   return {
     emoji: '😴', bg: 'bg-sky-50 dark:bg-sky-950/40',
     label: 'Sono',
-    sub: `${formatTime(item.startTime)} → ${item.endTime ? formatTime(item.endTime) : '...'} · ${formatDuration(item.duration)}`,
+    sub: base,
+    splitInfo: split,
   }
 }
 
@@ -227,7 +245,7 @@ function EditForm({ item, form, setForm }) {
 
 // ─── Bottom sheet ─────────────────────────────────────────────────────────────
 function ActionSheet({ item, onClose, onDelete, onEdit, isDeleting }) {
-  const { emoji, label, sub } = logMeta(item)
+  const { emoji, label, sub, splitInfo } = logMeta(item)
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-violet-900/30">
@@ -235,6 +253,7 @@ function ActionSheet({ item, onClose, onDelete, onEdit, isDeleting }) {
         <div>
           <p className="font-bold text-sm dark:text-white">{label}</p>
           <p className="text-xs text-gray-400 dark:text-slate-400">{sub}</p>
+          {splitInfo && <p className="text-[10px] text-sky-400 dark:text-sky-500 mt-0.5">↪ {splitInfo}</p>}
         </div>
       </div>
       <button
@@ -397,7 +416,7 @@ export function HistoryScreen() {
           </h2>
           <div className="flex flex-col gap-2">
             {dayItems.map((item, i) => {
-              const { emoji, bg, label, sub, photo_url } = logMeta(item)
+              const { emoji, bg, label, sub, splitInfo, photo_url } = logMeta(item)
               return (
                 <button
                   key={`${item.type}-${item.id}-${i}`}
@@ -408,6 +427,7 @@ export function HistoryScreen() {
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm truncate dark:text-white">{label}</p>
                     <p className="text-xs text-gray-400 dark:text-slate-400 truncate">{sub}</p>
+                    {splitInfo && <p className="text-[10px] text-sky-400 dark:text-sky-500 mt-0.5">↪ {splitInfo}</p>}
                   </div>
                   {photo_url && (
                     <img src={photo_url} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
