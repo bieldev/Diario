@@ -99,7 +99,9 @@ export function PhotosScreen() {
   const fileRef = useRef(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState(null)
-  const [previewDate, setPreviewDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [previewDate, setPreviewDate] = useState(() =>
+    new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Sao_Paulo' }).format(new Date())
+  )
 
   const { data: photos = [], isLoading } = useQuery({
     queryKey: ['photos'],
