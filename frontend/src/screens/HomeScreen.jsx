@@ -159,6 +159,14 @@ export function HomeScreen() {
         <QuickAction emoji="👶" label="Fralda"       to="/fralda"      colorClass="text-amber-500"  bgClass="bg-amber-50"  darkBgClass="dark:bg-amber-950/40"  borderClass="border-amber-100 dark:border-amber-900/50" />
         <QuickAction emoji="😴" label="Sono"         to="/sono"        colorClass="text-sky-500"    bgClass="bg-sky-50"    darkBgClass="dark:bg-sky-950/40"    borderClass="border-sky-100 dark:border-sky-900/50" />
         <QuickAction emoji="📊" label="Estatísticas" to="/stats"       colorClass="text-violet-600 dark:text-violet-400" bgClass="bg-violet-50" darkBgClass="dark:bg-violet-950/40" borderClass="border-violet-100 dark:border-violet-900/50" />
+        <Link to="/diario-diario"
+          className="col-span-2 bg-violet-50 dark:bg-violet-950/30 border-2 border-violet-100 dark:border-violet-900/50 rounded-2xl px-4 py-3 flex items-center gap-3 transition-colors duration-400">
+          <span className="text-2xl">📅</span>
+          <div>
+            <p className="text-sm font-bold text-violet-700 dark:text-violet-400">Histórico Diário</p>
+            <p className="text-xs text-violet-500 dark:text-violet-600">Resumo de cada dia</p>
+          </div>
+        </Link>
         <Link to="/crescimento"
           className="col-span-2 bg-emerald-50 dark:bg-emerald-950/30 border-2 border-emerald-100 dark:border-emerald-900/50 rounded-2xl px-4 py-3 flex items-center gap-3 transition-colors duration-400">
           <span className="text-2xl">📏</span>
