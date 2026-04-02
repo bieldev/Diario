@@ -59,7 +59,7 @@ function DayCard({ day }) {
 }
 
 export function DailyHistoryScreen() {
-  const [days, setDays] = useState(30)
+  const [days, setDays] = useState(7)
 
   const { data = [], isLoading } = useQuery({
     queryKey: ['daily-history', days],
