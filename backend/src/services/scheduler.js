@@ -1,5 +1,5 @@
 import cron from 'node-cron'
-import { db } from '../db.js'
+import { db, startOfDay } from '../db.js'
 import { notifSettingsQueries, activeTimerQueries, feedingFeedbackQueries } from '../db.js'
 import { sendPushToAll, lastNotifOf } from './notifier.js'
 
@@ -91,23 +91,33 @@ async function checkDiaperReminder(settings) {
   })
 }
 
-// ─── Resumo diário (às 21h) ───────────────────────────────────────────────────
+// ─── Resumo diário (à meia-noite de Brasília) ────────────────────────────────
 async function sendDailySummary() {
   const settings = notifSettingsQueries.get.get()
   if (!settings?.enabled || !settings.daily_summary) return
 
-  const start = (() => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime() })()
+  // Roda às 00:00 BRT → reporta o dia que acabou de terminar (ontem em BRT)
+  const todayStart     = startOfDay(new Date())                        // 00:00 BRT de hoje
+  const yesterdayStart = startOfDay(new Date(Date.now() - 86_400_000)) // 00:00 BRT de ontem
 
-  const feedingsCount = db.prepare(`SELECT COUNT(*) as n FROM feedings WHERE startTime >= ?`).get(start).n
-  const diapersCount  = db.prepare(`SELECT COUNT(*) as n FROM diapers WHERE time >= ?`).get(start).n
-  const totalSleepSec = db.prepare(`SELECT COALESCE(SUM(duration),0) as s FROM sleeps WHERE startTime >= ?`).get(start).s
+  const feedingsCount = db.prepare(
+    `SELECT COUNT(*) as n FROM feedings WHERE startTime >= ? AND startTime < ?`
+  ).get(yesterdayStart, todayStart).n
+
+  const diapersCount = db.prepare(
+    `SELECT COUNT(*) as n FROM diapers WHERE time >= ? AND time < ?`
+  ).get(yesterdayStart, todayStart).n
+
+  const totalSleepSec = db.prepare(
+    `SELECT COALESCE(SUM(duration),0) as s FROM sleeps WHERE startTime >= ? AND startTime < ?`
+  ).get(yesterdayStart, todayStart).s
 
   const h = Math.floor(totalSleepSec / 3600)
   const m = Math.floor((totalSleepSec % 3600) / 60)
   const sleepStr = h > 0 ? `${h}h${m > 0 ? ` ${m}m` : ''}` : `${m}m`
 
   await sendPushToAll('daily_summary', {
-    title: '📊 Resumo do dia da Helena',
+    title: '📊 Resumo do dia',
     body:  `${feedingsCount} mamadas · ${diapersCount} fraldas · ${sleepStr} de sono`,
     url:   '/',
   })
@@ -152,8 +162,8 @@ export function startScheduler() {
     }
   })
 
-  // Resumo diário às 21h (horário de Brasília = 00:00 UTC)
-  cron.schedule('0 0 * * *', sendDailySummary)
+  // Resumo diário à meia-noite de Brasília (BRT = UTC-3 → 03:00 UTC)
+  cron.schedule('0 3 * * *', sendDailySummary)
 
   console.log('⏰ Scheduler de notificações iniciado')
 }
