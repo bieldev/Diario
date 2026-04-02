@@ -1,4 +1,4 @@
-import { feedingQueries, diaperQueries, sleepQueries, activeTimerQueries, startOfDay } from '../db.js'
+import { feedingQueries, diaperQueries, sleepQueries, activeTimerQueries, measurementQueries, startOfDay } from '../db.js'
 
 export async function dashboardRoutes(fastify) {
   fastify.get('/', async () => {
@@ -17,6 +17,7 @@ export async function dashboardRoutes(fastify) {
     }, 0)
     const lastFeeding = feedingQueries.all.get()
     const lastDiaper = diaperQueries.all.get()
+    const lastMeasurement = measurementQueries.all.get()
 
     // ─── Previsão próxima mamada (média dos últimos 5 intervalos) ───────────────
     let nextFeedingEst = null
@@ -41,6 +42,7 @@ export async function dashboardRoutes(fastify) {
       },
       lastFeeding: lastFeeding || null,
       lastDiaper: lastDiaper || null,
+      lastMeasurement: lastMeasurement || null,
       active,
       nextFeedingEst,
     }

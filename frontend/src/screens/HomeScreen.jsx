@@ -132,6 +132,27 @@ export function HomeScreen() {
         </div>
       )}
 
+      {data?.lastMeasurement && (
+        <div className="mb-5">
+          <h2 className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2">Último peso &amp; altura</h2>
+          <Link to="/crescimento" className="bg-white dark:bg-[#1e1640] rounded-2xl p-4 shadow-sm flex items-center gap-3 transition-colors duration-400 block">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-xl shrink-0">📏</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm dark:text-white">
+                {[
+                  data.lastMeasurement.weight != null && `${data.lastMeasurement.weight} kg`,
+                  data.lastMeasurement.height != null && `${data.lastMeasurement.height} cm`,
+                ].filter(Boolean).join(' · ')}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-slate-400">
+                {new Date(data.lastMeasurement.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </p>
+            </div>
+            <span className="text-gray-300 dark:text-slate-600 text-sm">›</span>
+          </Link>
+        </div>
+      )}
+
       <h2 className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">Ação rápida</h2>
       <div className="grid grid-cols-2 gap-2.5 pb-2">
         <QuickAction emoji="🤱" label="Amamentar"   to="/mamar"       colorClass="text-pink-500"   bgClass="bg-pink-50"   darkBgClass="dark:bg-pink-950/40"   borderClass="border-pink-100 dark:border-pink-900/50" />
