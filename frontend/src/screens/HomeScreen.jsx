@@ -75,7 +75,13 @@ export function HomeScreen() {
           <StatCard emoji="🤱" label="Mamadas"    value={data?.today?.feedingsCount ?? 0}  colorClass="text-pink-500"   bgClass="bg-pink-50"   darkBgClass="dark:bg-pink-950/40" />
           <StatCard emoji="👶" label="Fraldas"    value={data?.today?.diapersCount ?? 0}   colorClass="text-amber-500"  bgClass="bg-amber-50"  darkBgClass="dark:bg-amber-950/40" />
           <StatCard emoji="😴" label="Sono total" value={formatDuration(data?.today?.totalSleepSec)} subLabel={`${data?.today?.sleepsCount ?? 0} ${(data?.today?.sleepsCount ?? 0) === 1 ? 'soneca' : 'sonecas'}`} colorClass="text-sky-500" bgClass="bg-sky-50" darkBgClass="dark:bg-sky-950/40" />
-          <StatCard emoji="📅" label="Total"      value={(data?.today?.feedingsCount ?? 0) + (data?.today?.diapersCount ?? 0) + (data?.today?.sleepsCount ?? 0)} colorClass="text-violet-600 dark:text-violet-400" bgClass="bg-violet-50" darkBgClass="dark:bg-violet-950/40" />
+          <Link to="/diario-diario" className="bg-white dark:bg-[#1e1640] rounded-2xl p-4 shadow-sm transition-colors duration-400 flex flex-col justify-between">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 flex items-center justify-center text-base">📅</div>
+              <span className="text-xs text-gray-500 dark:text-slate-400 font-semibold">Histórico</span>
+            </div>
+            <p className="text-sm font-extrabold text-violet-600 dark:text-violet-400 leading-tight">Ver por<br/>dia →</p>
+          </Link>
         </div>
       )}
 
@@ -159,14 +165,6 @@ export function HomeScreen() {
         <QuickAction emoji="👶" label="Fralda"       to="/fralda"      colorClass="text-amber-500"  bgClass="bg-amber-50"  darkBgClass="dark:bg-amber-950/40"  borderClass="border-amber-100 dark:border-amber-900/50" />
         <QuickAction emoji="😴" label="Sono"         to="/sono"        colorClass="text-sky-500"    bgClass="bg-sky-50"    darkBgClass="dark:bg-sky-950/40"    borderClass="border-sky-100 dark:border-sky-900/50" />
         <QuickAction emoji="📊" label="Estatísticas" to="/stats"       colorClass="text-violet-600 dark:text-violet-400" bgClass="bg-violet-50" darkBgClass="dark:bg-violet-950/40" borderClass="border-violet-100 dark:border-violet-900/50" />
-        <Link to="/diario-diario"
-          className="col-span-2 bg-violet-50 dark:bg-violet-950/30 border-2 border-violet-100 dark:border-violet-900/50 rounded-2xl px-4 py-3 flex items-center gap-3 transition-colors duration-400">
-          <span className="text-2xl">📅</span>
-          <div>
-            <p className="text-sm font-bold text-violet-700 dark:text-violet-400">Histórico Diário</p>
-            <p className="text-xs text-violet-500 dark:text-violet-600">Resumo de cada dia</p>
-          </div>
-        </Link>
         <Link to="/crescimento"
           className="col-span-2 bg-emerald-50 dark:bg-emerald-950/30 border-2 border-emerald-100 dark:border-emerald-900/50 rounded-2xl px-4 py-3 flex items-center gap-3 transition-colors duration-400">
           <span className="text-2xl">📏</span>
