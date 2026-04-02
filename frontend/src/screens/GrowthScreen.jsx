@@ -27,9 +27,9 @@ const WHO_HEIGHT = [
 
 function ageInMonths(birthDateStr, measureDateMs) {
   if (!birthDateStr) return null
-  const birth = new Date(birthDateStr)
-  const m = new Date(measureDateMs)
-  const months = (m.getFullYear() - birth.getFullYear()) * 12 + (m.getMonth() - birth.getMonth())
+  const birth = new Date(birthDateStr + 'T12:00:00')
+  const diffMs = measureDateMs - birth.getTime()
+  const months = diffMs / (1000 * 60 * 60 * 24 * 30.4375)
   return Math.max(0, Math.round(months * 10) / 10)
 }
 
@@ -86,7 +86,7 @@ function buildChartData(whoTable, measurements, birthDateStr, field) {
 
 // ─── Form ─────────────────────────────────────────────────────────────────────
 function AddForm({ onSave, isSaving }) {
-  const [date, setDate]     = useState(() => new Date().toISOString().slice(0, 10))
+  const [date, setDate]     = useState(() => new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Sao_Paulo' }).format(new Date()))
   const [weight, setWeight] = useState('')
   const [height, setHeight] = useState('')
 
