@@ -114,7 +114,7 @@ export function HomeScreen() {
                 Prevista para {formatTime(data.nextFeedingEst)}
               </p>
               <p className={`text-xs font-medium ${data.nextFeedingEst > Date.now() ? 'text-violet-500 dark:text-violet-400' : 'text-orange-500 dark:text-orange-400'}`}>
-                {timeUntil(data.nextFeedingEst)} · média dos últimos registros
+                {timeUntil(data.nextFeedingEst)}{data.avgFeedingIntervalMin ? ` · intervalo médio ${Math.floor(data.avgFeedingIntervalMin / 60)}h${data.avgFeedingIntervalMin % 60 > 0 ? `${data.avgFeedingIntervalMin % 60}m` : ''}` : ''}
               </p>
             </div>
           </div>

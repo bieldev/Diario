@@ -77,6 +77,7 @@ export async function dashboardRoutes(fastify) {
 
     // ─── Previsão próxima mamada (média dos últimos 5 intervalos) ───────────────
     let nextFeedingEst = null
+    let avgFeedingIntervalMin = null
     if (!active || active.type !== 'feeding') {
       const lastFive = feedingQueries.lastFive.all()
       if (lastFive.length >= 2) {
@@ -86,6 +87,7 @@ export async function dashboardRoutes(fastify) {
         }
         const avgMs = intervals.reduce((a, b) => a + b, 0) / intervals.length
         nextFeedingEst = Math.round(lastFive[0].startTime + avgMs)
+        avgFeedingIntervalMin = Math.round(avgMs / 60000)
       }
     }
 
@@ -101,6 +103,7 @@ export async function dashboardRoutes(fastify) {
       lastMeasurement: lastMeasurement || null,
       active,
       nextFeedingEst,
+      avgFeedingIntervalMin,
     }
   })
 }

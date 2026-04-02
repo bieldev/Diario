@@ -44,6 +44,10 @@ function NotesBadges({ feeding }) {
 }
 
 function RecentItem({ feeding }) {
+  const timeRange = feeding.endTime
+    ? `${formatTime(feeding.startTime)} → ${formatTime(feeding.endTime)}`
+    : formatTime(feeding.startTime)
+
   return (
     <div className="bg-white dark:bg-[#1e1640] rounded-xl px-4 py-3 shadow-sm flex items-center gap-3 transition-colors duration-400">
       <div className="w-9 h-9 rounded-xl bg-pink-50 dark:bg-pink-950/40 flex items-center justify-center text-lg shrink-0">🤱</div>
@@ -53,7 +57,10 @@ function RecentItem({ feeding }) {
         </p>
         <BreastSegments breastLog={feeding.breast_log} />
         <NotesBadges feeding={feeding} />
-        <p className="text-xs text-gray-400 dark:text-slate-400 mt-0.5">{formatTime(feeding.startTime)}</p>
+        {feeding.note ? (
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 italic truncate">"{feeding.note}"</p>
+        ) : null}
+        <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{timeRange}</p>
       </div>
       <span className="text-sm font-bold text-pink-500 shrink-0">{formatDuration(feeding.duration)}</span>
     </div>
