@@ -172,7 +172,19 @@ export function NotificationsScreen() {
             />
 
             <OptionRow
-              label="📊 Resumo diário às 21h"
+              label="🌅 Bom dia — resumo do sono"
+              sub="Enviado às 09:00 com o sono da noite"
+              right={
+                <Toggle
+                  value={!!settings.morning_summary}
+                  onChange={v => set('morning_summary', v)}
+                  disabled={!settings.enabled}
+                />
+              }
+            />
+
+            <OptionRow
+              label="📊 Resumo diário à meia-noite"
               sub="Mamadas, fraldas e sono do dia"
               right={
                 <Toggle

@@ -1,7 +1,7 @@
 import webpush from 'web-push'
 import { pushQueries, notifSettingsQueries } from '../db.js'
 import { vapidKeys, sendPushToAll } from '../services/notifier.js'
-import { sendDailySummary } from '../services/scheduler.js'
+import { sendDailySummary, sendMorningSummary } from '../services/scheduler.js'
 
 export async function pushRoutes(fastify) {
   // Chave pública VAPID — o frontend precisa disso para se inscrever
@@ -54,6 +54,7 @@ export async function pushRoutes(fastify) {
       feeding_interval_min: body.feeding_interval_min ?? current.feeding_interval_min,
       long_sleep_min:       body.long_sleep_min       ?? current.long_sleep_min,
       daily_summary:        body.daily_summary        ?? current.daily_summary,
+      morning_summary:      body.morning_summary      ?? current.morning_summary,
       quiet_hours:          body.quiet_hours          ?? current.quiet_hours,
       quiet_start:          body.quiet_start          ?? current.quiet_start,
       quiet_end:            body.quiet_end            ?? current.quiet_end,
@@ -64,6 +65,12 @@ export async function pushRoutes(fastify) {
   // Dispara o resumo diário manualmente (para teste)
   fastify.post('/test-daily-summary', async () => {
     await sendDailySummary()
+    return { ok: true }
+  })
+
+  // Dispara o resumo matinal manualmente (para teste)
+  fastify.post('/test-morning-summary', async () => {
+    await sendMorningSummary()
     return { ok: true }
   })
 

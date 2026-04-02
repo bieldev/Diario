@@ -129,6 +129,9 @@ if (!pushCols.includes('user_agent'))   db.exec(`ALTER TABLE push_subscriptions 
 if (!pushCols.includes('last_success')) db.exec(`ALTER TABLE push_subscriptions ADD COLUMN last_success INTEGER`)
 if (!pushCols.includes('fail_count'))   db.exec(`ALTER TABLE push_subscriptions ADD COLUMN fail_count INTEGER NOT NULL DEFAULT 0`)
 
+const notifCols = db.pragma('table_info(notification_settings)').map(c => c.name)
+if (!notifCols.includes('morning_summary')) db.exec(`ALTER TABLE notification_settings ADD COLUMN morning_summary INTEGER NOT NULL DEFAULT 1`)
+
 // ─── Indexes ──────────────────────────────────────────────────────────────────
 db.exec(`
   CREATE INDEX IF NOT EXISTS idx_feedings_startTime ON feedings(startTime DESC);
@@ -270,6 +273,7 @@ export const notifSettingsQueries = {
     UPDATE notification_settings SET
       enabled=@enabled, feeding_interval_min=@feeding_interval_min,
       long_sleep_min=@long_sleep_min, daily_summary=@daily_summary,
+      morning_summary=@morning_summary,
       quiet_hours=@quiet_hours, quiet_start=@quiet_start, quiet_end=@quiet_end
     WHERE id=1
   `),

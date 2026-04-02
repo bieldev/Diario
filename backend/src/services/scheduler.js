@@ -137,6 +137,47 @@ async function checkFeedingFeedback(settings) {
   }
 }
 
+// ─── Resumo matinal (às 09:00 BRT) ───────────────────────────────────────────
+export async function sendMorningSummary() {
+  const settings = notifSettingsQueries.get.get()
+  if (!settings?.enabled || !settings.morning_summary) return
+
+  // Janela noturna: ontem às 19:00 BRT → agora (09:00 BRT)
+  const now = Date.now()
+  const BR_TZ = 'America/Sao_Paulo'
+  const yesterdayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: BR_TZ })
+    .format(new Date(now - 86_400_000))
+  const nightStart = new Date(`${yesterdayStr}T19:00:00-03:00`).getTime()
+
+  const sleeps = db.prepare(
+    `SELECT * FROM sleeps WHERE endTime > ? AND startTime < ? ORDER BY startTime ASC`
+  ).all(nightStart, now)
+
+  if (sleeps.length === 0) return
+
+  // Soma apenas a porção dentro da janela noturna
+  let totalSec = 0
+  for (const s of sleeps) {
+    const start = Math.max(s.startTime, nightStart)
+    const end   = Math.min(s.endTime || now, now)
+    totalSec += Math.max(0, Math.floor((end - start) / 1000))
+  }
+
+  const wakeUps = sleeps.length - 1
+  const h = Math.floor(totalSec / 3600)
+  const m = Math.floor((totalSec % 3600) / 60)
+  const sleepStr = h > 0 ? `${h}h${m > 0 ? ` ${m}m` : ''}` : `${m}m`
+
+  let body = `Dormiu ${sleepStr} na noite`
+  if (wakeUps > 0) body += ` · ${wakeUps} acordada${wakeUps > 1 ? 's' : ''}`
+
+  await sendPushToAll('morning_summary', {
+    title: '🌅 Bom dia!',
+    body,
+    url:  '/sono',
+  })
+}
+
 // ─── Start scheduler ──────────────────────────────────────────────────────────
 export function startScheduler() {
   // Verifica a cada minuto (feedback) e a cada 10 minutos (lembretes)
@@ -164,6 +205,9 @@ export function startScheduler() {
 
   // Resumo diário à meia-noite de Brasília (BRT = UTC-3 → 03:00 UTC)
   cron.schedule('0 3 * * *', sendDailySummary)
+
+  // Resumo matinal às 09:00 BRT (BRT = UTC-3 → 12:00 UTC)
+  cron.schedule('0 12 * * *', sendMorningSummary)
 
   console.log('⏰ Scheduler de notificações iniciado')
 }
