@@ -3,8 +3,10 @@
   "configurations": [
     {
       "name": "diario-bebe",
-      "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "cd /Users/bieldev/Documents/diario/frontend && npm run dev -- --port 5173 --host"],
+      "runtimeExecutable": "/opt/homebrew/Cellar/node@20/20.20.1/bin/node",
+      "runtimeArgs": ["/opt/homebrew/Cellar/node@20/20.20.1/lib/node_modules/npm/bin/npm-cli.js", "run", "dev", "--", "--port", "5173", "--host"],
+      "env": { "PATH": "/opt/homebrew/Cellar/node@20/20.20.1/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" },
+      "cwd": "/Users/bieldev/Documents/diario/frontend",
       "port": 5173
     }
   ]

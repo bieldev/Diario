@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário da Helena - App de Acompanhamento do Bebê</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .phone-mockup {
+            transition: all 0.3s ease;
+        }
+        .phone-mockup:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-200">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🍼</span>
+                    <span class="font-bold text-xl">Diário da Helena</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-gray-600 hover:text-purple-600 transition">Funcionalidades</a>
+                    <a href="#screenshots" class="text-gray-600 hover:text-purple-600 transition">Screenshots</a>
+                    <a href="#testimonials" class="text-gray-600 hover:text-purple-600 transition">Depoimentos</a>
+                    <a href="#download" class="bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition">Baixar Agora</a>
+                </div>
+                <button class="md:hidden" onclick="toggleMenu()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-4 py-4 space-y-3">
+                <a href="#features" class="block text-gray-600 hover:text-purple-600">Funcionalidades</a>
+                <a href="#screenshots" class="block text-gray-600 hover:text-purple-600">Screenshots</a>
+                <a href="#testimonials" class="block text-gray-600 hover:text-purple-600">Depoimentos</a>
+                <a href="#download" class="block bg-purple-600 text-white px-6 py-2 rounded-full text-center">Baixar Agora</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12 sm:pt-32 sm:pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+                        Acompanhe cada <span class="gradient-text">momento</span> do seu bebê
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-8">
+                        O app mais completo para registrar mamadas, fraldas, sono e crescimento do seu pequeno.
+                        Simples, intuitivo e feito com ❤️ para pais modernos.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <a href="#download" class="hero-gradient text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-xl transition">
+                            📱 Baixar Gratuitamente
+                        </a>
+                        <a href="#features" class="border-2 border-purple-600 text-purple-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-purple-50 transition">
+                            Ver Funcionalidades
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-6 text-sm text-gray-500">
+                        <span>⭐ 4.9/5 avaliações</span>
+                        <span>👥 +10 mil pais</span>
+                        <span>🔐 100% seguro</span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="phone-mockup relative z-10 mx-auto max-w-sm">
+                        <img src="https://i.imgur.com/example-phone.png" alt="App Screenshot" class="rounded-3xl shadow-2xl mx-auto" />
+                        <div class="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl p-3 flex items-center gap-2">
+                            <span class="text-2xl">🎉</span>
+                            <div>
+                                <p class="font-semibold text-sm">Notificação</p>
+                                <p class="text-xs text-gray-500">Hora da mamada!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Tudo que você precisa<br><span class="gradient-text">em um só lugar</span></h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Ferramentas inteligentes para ajudar você a cuidar do seu bebê com mais tranquilidade
+                </p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center text-2xl mb-4">🤱</div>
+                    <h3 class="text-xl font-semibold mb-3">Registro de Mamadas</h3>
+                    <p class="text-gray-600">Controle do tempo de amamentação por seio, horários e intervalos automáticos para ajudar na rotina.</p>
+                </div>
+                <!-- Feature 2 -->
+                <div class="feature-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl mb-4">👶</div>
+                    <h3 class="text-xl font-semibold mb-3">Controle de Fraldas</h3>
+                    <p class="text-gray-600">Registre fraldas sujas com toques rápidos. Monstre padrões e evite assaduras.</p>
+                </div>
+                <!-- Feature 3 -->
+                <div class="feature-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center text-2xl mb-4">😴</div>
+                    <h3 class="text-xl font-semibold mb-3">Monitor de Sono</h3>
+                    <p class="text-gray-600">Acompanhe o tempo e qualidade do sono. Receba insights sobre os padrões do bebê.</p>
+                </div>
+                <!-- Feature 4 -->
+                <div class="feature-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center text-2xl mb-4">📊</div>
+                    <h3 class="text-xl font-semibold mb-3">Estatísticas</h3>
+                    <p class="text-gray-600">Visualize gráficos e tendências do desenvolvimento. Compartilhe com o pediatra.</p>
+                </div>
+                <!-- Feature 5 -->
+                <div class="feature-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-4">📏</div>
+                    <h3 class="text-xl font-semibold mb-3">Curvas de Crescimento</h3>
+                    <p class="text-gray-600">Compare peso e altura com as curvas da OMS. Acompanhe o desenvolvimento saudável.</p>
+                </div>
+                <!-- Feature 6 -->
+                <div class="feature-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center text-2xl mb-4">📸</div>
+                    <h3 class="text-xl font-semibold mb-3">Diário de Fotos</h3>
+                    <p class="text-gray-600">Crie um timeline de memórias preciosas. Nunca perca um momento especial.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section id="screenshots" class="py-20 px-4 bg-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Interface <span class="gradient-text">intuitiva e moderna</span></h2>
+                <p class="text-xl text-gray-600">Desenhado para ser usado com uma mão, mesmo com o bebê no colo</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <img src="https://i.imgur.com/home-screen.png" alt="Home" class="rounded-2xl shadow-xl">
+                <img src="https://i.imgur.com/feeding-screen.png" alt="Feeding" class="rounded-2xl shadow-xl">
+                <img src="https://i.imgur.com/stats-screen.png" alt="Stats" class="rounded-2xl shadow-xl">
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Pais que <span class="gradient-text">amam o app</span></h2>
+                <p class="text-xl text-gray-600">Veja o que estão dizendo</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-1 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <p class="text-gray-600 mb-4">"Simplificou minha vida! Consigo registrar tudo rapidamente, até de madrugada com o bebê no colo."</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://i.imgur.com/user1.png" alt="User" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-semibold">Mariana S.</p>
+                            <p class="text-sm text-gray-500">Mãe da Laura</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-1 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <p class="text-gray-600 mb-4">"Os gráficos ajudam muito nas consultas. O pediatra adora quando mostro os dados organizados!"</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://i.imgur.com/user2.png" alt="User" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-semibold">Rafael B.</p>
+                            <p class="text-sm text-gray-500">Pai do Davi</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-1 mb-4">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <p class="text-gray-600 mb-4">"As notificações me lembram na hora certa. Zero esquecimentos depois que o app entrou na minha vida!"</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://i.imgur.com/user3.png" alt="User" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-semibold">Juliana P.</p>
+                            <p class="text-sm text-gray-500">Mãe do Arthur</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="download" class="py-20 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-4">Comece a usar <span class="gradient-text">hoje mesmo</span></h2>
+            <p class="text-xl text-gray-600 mb-8">Disponível para iOS e Android</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <a href="#" class="bg-black text-white px-8 py-4 rounded-full flex items-center justify-center gap-3 hover:bg-gray-800 transition">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.1c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                    </svg>
+                    <span>App Store</span>
+                </a>
+                <a href="#" class="bg-black text-white px-8 py-4 rounded-full flex items-center justify-center gap-3 hover:bg-gray-800 transition">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5h15c.83 0 1.5.67 1.5 1.5v17c0 .83-.67 1.5-1.5 1.5h-15c-.83 0-1.5-.67-1.5-1.5zM8.5 9.5l4-2.5v11l-4-2.5v-6zm5 0l4-2.5v11l-4-2.5v-6z"/>
+                    </svg>
+                    <span>Google Play</span>
+                </a>
+            </div>
+            <p class="text-gray-500 text-sm">
+                🎁 Novo usuário? Ganhe 30 dias de Premium grátis!
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-2xl">🍼</span>
+                        <span class="font-bold text-xl">Diário da Helena</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">O app mais amado para acompanhar o desenvolvimento do seu bebê.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Funcionalidades</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="#" class="hover:text-white transition">Registro de Mamadas</a></li>
+                        <li><a href="#" class="hover:text-white transition">Controle de Fraldas</a></li>
+                        <li><a href="#" class="hover:text-white transition">Monitor de Sono</a></li>
+                        <li><a href="#" class="hover:text-white transition">Curvas de Crescimento</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Empresa</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="#" class="hover:text-white transition">Sobre Nós</a></li>
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition">Contato</a></li>
+                        <li><a href="#" class="hover:text-white transition">Carreiras</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="#" class="hover:text-white transition">Privacidade</a></li>
+                        <li><a href="#" class="hover:text-white transition">Termos de Uso</a></li>
+                        <li><a href="#" class="hover:text-white transition">LGPD</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2024 Diário da Helena. Todos os direitos reservados.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1112.324 0 6.162 6.162 0 01-12.324 0zM12 16a4 4 0 110-8 4 4 0 010 8zm4.965-10.405a1.44 1.44 0 112.881.001 1.44 1.44 0 01-2.881-.001z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
