@@ -92,7 +92,7 @@ async function checkDiaperReminder(settings) {
 }
 
 // ─── Resumo diário (à meia-noite de Brasília) ────────────────────────────────
-async function sendDailySummary() {
+export async function sendDailySummary() {
   const settings = notifSettingsQueries.get.get()
   if (!settings?.enabled || !settings.daily_summary) return
 

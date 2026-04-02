@@ -1,6 +1,7 @@
 import webpush from 'web-push'
 import { pushQueries, notifSettingsQueries } from '../db.js'
 import { vapidKeys, sendPushToAll } from '../services/notifier.js'
+import { sendDailySummary } from '../services/scheduler.js'
 
 export async function pushRoutes(fastify) {
   // Chave pública VAPID — o frontend precisa disso para se inscrever
@@ -58,6 +59,12 @@ export async function pushRoutes(fastify) {
       quiet_end:            body.quiet_end            ?? current.quiet_end,
     })
     return notifSettingsQueries.get.get()
+  })
+
+  // Dispara o resumo diário manualmente (para teste)
+  fastify.post('/test-daily-summary', async () => {
+    await sendDailySummary()
+    return { ok: true }
   })
 
   // Envia notificação de teste imediatamente (retorna detalhes de erro)
