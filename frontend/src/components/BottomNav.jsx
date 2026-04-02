@@ -10,6 +10,7 @@ const PRIMARY_TABS = [
 
 const MORE_ITEMS = [
   { to: '/historico',    emoji: '📋', label: 'Histórico'     },
+  { to: '/diario-diario', emoji: '📅', label: 'Por dia'      },
   { to: '/stats',        emoji: '📊', label: 'Estatísticas'  },
   { to: '/fotos',        emoji: '📸', label: 'Fotos'         },
   { to: '/crescimento',  emoji: '📏', label: 'Crescimento'   },
