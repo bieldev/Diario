@@ -4,10 +4,44 @@ export async function historyRoutes(fastify) {
   fastify.get('/', async (request) => {
     const limit  = Math.min(Number(request.query.limit)  || 30, 100)
     const offset = Number(request.query.offset) || 0
+    const type   = request.query.type
+
+    if (type === 'feeding') {
+      const items = db.prepare(`
+        SELECT f.id, 'feeding' AS type, f.startTime AS sortTime,
+               f.breast, f.startTime, f.endTime, f.duration, NULL AS contents, NULL AS time, f.breast_log,
+               fn.burp, fn.hiccup, fn.spit_up, fn.behavior, fn.note AS note, NULL AS photo_path
+        FROM feedings f LEFT JOIN feeding_notes fn ON fn.feeding_id = f.id
+        ORDER BY sortTime DESC LIMIT ? OFFSET ?
+      `).all(limit, offset)
+      const total = db.prepare(`SELECT COUNT(*) as n FROM feedings`).get().n
+      return { items, total }
+    }
+    if (type === 'diaper') {
+      const items = db.prepare(`
+        SELECT id, 'diaper' AS type, time AS sortTime,
+               NULL as breast, NULL as startTime, NULL as endTime, NULL as duration,
+               contents, time, NULL as breast_log, NULL as burp, NULL as hiccup,
+               NULL as spit_up, NULL as behavior, note, photo_path
+        FROM diapers ORDER BY sortTime DESC LIMIT ? OFFSET ?
+      `).all(limit, offset)
+      const total = db.prepare(`SELECT COUNT(*) as n FROM diapers`).get().n
+      return { items, total }
+    }
+    if (type === 'sleep') {
+      const items = db.prepare(`
+        SELECT id, 'sleep' AS type, startTime AS sortTime,
+               NULL as breast, startTime, endTime, duration,
+               NULL as contents, NULL as time, NULL as breast_log,
+               NULL as burp, NULL as hiccup, NULL as spit_up, NULL as behavior, NULL as note, NULL as photo_path
+        FROM sleeps ORDER BY sortTime DESC LIMIT ? OFFSET ?
+      `).all(limit, offset)
+      const total = db.prepare(`SELECT COUNT(*) as n FROM sleeps`).get().n
+      return { items, total }
+    }
 
     const items = historyQueries.page.all({ limit, offset })
     const { total } = historyQueries.count.get()
-
     return { items, total }
   })
 

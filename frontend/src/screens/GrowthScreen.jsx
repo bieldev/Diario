@@ -25,6 +25,14 @@ const WHO_HEIGHT = [
   [21,77.5,83.7,90.1],[24,80.0,86.4,93.1],
 ]
 
+// Estima percentil por interpolação linear entre P3, P50, P97
+function estimatePercentile(val, p3, p50, p97) {
+  if (val <= p3)  return Math.round(3  * (val / p3))
+  if (val <= p50) return Math.round(3  + (val - p3)  / (p50 - p3)  * 47)
+  if (val <= p97) return Math.round(50 + (val - p50) / (p97 - p50) * 47)
+  return 99
+}
+
 function ageInMonths(birthDateStr, measureDateMs) {
   if (!birthDateStr) return null
   const birth = new Date(birthDateStr + 'T12:00:00')
@@ -47,10 +55,12 @@ function interpretGrowth(whoTable, measurements, birthDateStr, field, unit) {
   const [, p3, p50, p97] = ref
   const val = latest[field]
 
-  if (val < p3)  return { emoji: '⚠️', title: 'Abaixo do esperado para a idade', detail: 'Converse com o pediatra na próxima consulta.', bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-400', sub: 'text-amber-600 dark:text-amber-500' }
-  if (val <= p50) return { emoji: '✅', title: 'Crescimento dentro do esperado', detail: `${val}${unit} — está bem! Um pouco abaixo da média das meninas da mesma idade, mas totalmente normal.`, bg: 'bg-emerald-50 dark:bg-emerald-950/30', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-400', sub: 'text-emerald-600 dark:text-emerald-500' }
-  if (val <= p97) return { emoji: '✅', title: 'Crescimento dentro do esperado', detail: `${val}${unit} — está bem! Um pouco acima da média das meninas da mesma idade, mas totalmente normal.`, bg: 'bg-emerald-50 dark:bg-emerald-950/30', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-400', sub: 'text-emerald-600 dark:text-emerald-500' }
-  return { emoji: '📊', title: 'Acima do máximo esperado', detail: 'Converse com o pediatra na próxima consulta.', bg: 'bg-sky-50 dark:bg-sky-950/30', border: 'border-sky-200 dark:border-sky-800', text: 'text-sky-700 dark:text-sky-400', sub: 'text-sky-600 dark:text-sky-500' }
+  const percentile = estimatePercentile(val, p3, p50, p97)
+  const pctLabel = `Percentil ~${percentile}`
+  if (val < p3)  return { emoji: '⚠️', title: 'Abaixo do esperado para a idade', detail: `${val}${unit} · ${pctLabel} — Converse com o pediatra na próxima consulta.`, bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-400', sub: 'text-amber-600 dark:text-amber-500' }
+  if (val <= p50) return { emoji: '✅', title: 'Crescimento dentro do esperado', detail: `${val}${unit} · ${pctLabel} — Um pouco abaixo da média, mas totalmente normal.`, bg: 'bg-emerald-50 dark:bg-emerald-950/30', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-400', sub: 'text-emerald-600 dark:text-emerald-500' }
+  if (val <= p97) return { emoji: '✅', title: 'Crescimento dentro do esperado', detail: `${val}${unit} · ${pctLabel} — Um pouco acima da média, mas totalmente normal.`, bg: 'bg-emerald-50 dark:bg-emerald-950/30', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-700 dark:text-emerald-400', sub: 'text-emerald-600 dark:text-emerald-500' }
+  return { emoji: '📊', title: 'Acima do máximo esperado', detail: `${val}${unit} · ${pctLabel} — Converse com o pediatra na próxima consulta.`, bg: 'bg-sky-50 dark:bg-sky-950/30', border: 'border-sky-200 dark:border-sky-800', text: 'text-sky-700 dark:text-sky-400', sub: 'text-sky-600 dark:text-sky-500' }
 }
 
 // ─── Build chart data: merge WHO reference + Helena's real points ─────────────
@@ -221,6 +231,18 @@ export function GrowthScreen() {
   const hasHelenaWeight = measurements.some(m => m.weight != null)
   const hasHelenaHeight = measurements.some(m => m.height != null)
 
+  // Velocidade de crescimento entre as duas últimas medições
+  const lastTwo = (field) => {
+    const sorted = measurements.filter(m => m[field] != null).sort((a, b) => b.date - a.date)
+    if (sorted.length < 2) return null
+    const [latest, prev] = sorted
+    const deltaDays = Math.round((latest.date - prev.date) / 86_400_000)
+    const deltaVal  = (latest[field] - prev[field])
+    return { deltaDays, deltaVal, latest: latest[field], prev: prev[field] }
+  }
+  const weightVel = lastTwo('weight')
+  const heightVel = lastTwo('height')
+
   return (
     <div className="px-4 pb-4 overflow-y-auto overscroll-y-none h-full">
       <div className="pt-5 pb-4">
@@ -269,6 +291,33 @@ export function GrowthScreen() {
 
       {/* Add measurement */}
       <AddForm onSave={(data) => addMutation.mutate(data)} isSaving={addMutation.isPending} />
+
+      {/* Velocidade de crescimento */}
+      {(weightVel || heightVel) && (
+        <div className="bg-white dark:bg-[#1e1640] rounded-2xl p-4 shadow-sm mb-4">
+          <p className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-3">Velocidade de crescimento</p>
+          <div className="flex gap-3">
+            {weightVel && (
+              <div className="flex-1 bg-pink-50 dark:bg-pink-950/30 rounded-xl p-3 text-center">
+                <p className="text-lg font-extrabold text-pink-500">
+                  {weightVel.deltaVal >= 0 ? '+' : ''}{weightVel.deltaVal >= 0.1 ? (weightVel.deltaVal * 1000).toFixed(0) + 'g' : (weightVel.deltaVal * 1000).toFixed(0) + 'g'}
+                </p>
+                <p className="text-[10px] text-pink-400 dark:text-pink-600 mt-0.5">em {weightVel.deltaDays}d</p>
+                <p className="text-[10px] text-gray-400 dark:text-slate-500">{weightVel.prev} → {weightVel.latest} kg</p>
+              </div>
+            )}
+            {heightVel && (
+              <div className="flex-1 bg-sky-50 dark:bg-sky-950/30 rounded-xl p-3 text-center">
+                <p className="text-lg font-extrabold text-sky-500">
+                  {heightVel.deltaVal >= 0 ? '+' : ''}{heightVel.deltaVal.toFixed(1)} cm
+                </p>
+                <p className="text-[10px] text-sky-400 dark:text-sky-600 mt-0.5">em {heightVel.deltaDays}d</p>
+                <p className="text-[10px] text-gray-400 dark:text-slate-500">{heightVel.prev} → {heightVel.latest} cm</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Weight chart */}
       {hasHelenaWeight && birthDate && (() => {

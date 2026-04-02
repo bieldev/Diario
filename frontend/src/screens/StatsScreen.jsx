@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { feedingsApi } from '../api/feedings.js'
 import { sleepsApi } from '../api/sleeps.js'
 import { diapersApi } from '../api/diapers.js'
+import { api } from '../api/client.js'
 import { PageHeader } from '../components/PageHeader.jsx'
 import { formatDuration } from '../utils/format.js'
 import {
@@ -147,6 +148,7 @@ export function StatsScreen() {
   const { data: sleeps = [] }   = useQuery({ queryKey: ['sleeps', 'week'],   queryFn: sleepsApi.getWeek })
   const { data: diapers = [] }  = useQuery({ queryKey: ['diapers', 'today'], queryFn: diapersApi.getToday })
   const { data: allDiapers = [] } = useQuery({ queryKey: ['diapers', 'all'], queryFn: diapersApi.getAll })
+  const { data: daily14 = [] }  = useQuery({ queryKey: ['daily-history', 14], queryFn: () => api.get('/dashboard/daily?days=14').then(r => r.data) })
 
   const daily = buildDailyData(feedings, sleeps, allDiapers)
 
@@ -157,6 +159,31 @@ export function StatsScreen() {
   const intervalMin = avgFeedingInterval(feedings)
   const best = bestNight(sleeps)
   const peakHour = nightWakePeakHour(sleeps)
+
+  // Comparativo semana atual vs anterior
+  const currWeek = daily14.slice(0, 7)
+  const prevWeek = daily14.slice(7, 14)
+  const avg = (arr, key) => arr.length ? (arr.reduce((s, d) => s + d[key], 0) / arr.length) : 0
+  const weekComparison = prevWeek.length >= 3 ? [
+    { label: 'Mamadas/dia', curr: avg(currWeek, 'feedingsCount'), prev: avg(prevWeek, 'feedingsCount'), color: 'text-pink-500', emoji: '🤱' },
+    { label: 'Fraldas/dia', curr: avg(currWeek, 'diapersCount'),  prev: avg(prevWeek, 'diapersCount'),  color: 'text-amber-500', emoji: '👶' },
+    { label: 'Sono médio',  curr: avg(currWeek, 'totalSleepSec') / 60, prev: avg(prevWeek, 'totalSleepSec') / 60, color: 'text-sky-500', emoji: '😴', unit: 'min' },
+  ] : []
+
+  // Análise de comportamento pós-mamada
+  const feedingsWithFeedback = feedings.filter(f => f.burp != null || f.behavior != null)
+  const totalF = feedings.length
+  const behaviorData = totalF > 0 ? [
+    { label: 'Arrotou',    value: feedings.filter(f => f.burp).length,   color: '#10B981' },
+    { label: 'Soluçou',    value: feedings.filter(f => f.hiccup).length, color: '#F59E0B' },
+    { label: 'Regurgitou', value: feedings.filter(f => f.spit_up && f.spit_up !== 'nao').length, color: '#EF4444' },
+  ].filter(b => b.value > 0) : []
+  const moodData = totalF > 0 ? [
+    { label: '😴 Dormiu',  value: feedings.filter(f => f.behavior === 'dormiu').length,  color: '#6366F1' },
+    { label: '😌 Calmo',   value: feedings.filter(f => f.behavior === 'calmo').length,   color: '#10B981' },
+    { label: '😣 Agitado', value: feedings.filter(f => f.behavior === 'agitado').length, color: '#F59E0B' },
+    { label: '😭 Chorou',  value: feedings.filter(f => f.behavior === 'chorou').length,  color: '#EF4444' },
+  ].filter(b => b.value > 0) : []
 
   const breastCount = { E: 0, D: 0, A: 0 }
   for (const f of feedings) breastCount[f.breast] = (breastCount[f.breast] || 0) + 1
@@ -284,6 +311,72 @@ export function StatsScreen() {
               <Line type="monotone" dataKey="sonoMin" name="Sono" stroke="#3B82F6" strokeWidth={2.5} dot={{ r: 4, fill: '#3B82F6' }} />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Comparativo semana vs anterior */}
+      {weekComparison.length > 0 && (
+        <div className="bg-white dark:bg-[#1e1640] rounded-2xl p-4 shadow-sm mb-4 transition-colors">
+          <p className="text-sm font-bold text-gray-700 dark:text-slate-200 mb-1">Esta semana vs anterior</p>
+          <p className="text-xs text-gray-400 dark:text-slate-500 mb-3">Média diária</p>
+          <div className="flex flex-col gap-3">
+            {weekComparison.map(w => {
+              const delta = w.curr - w.prev
+              const pct = w.prev > 0 ? Math.round((delta / w.prev) * 100) : 0
+              const up = delta >= 0
+              return (
+                <div key={w.label} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span>{w.emoji}</span>
+                    <span className="text-xs font-semibold text-gray-600 dark:text-slate-300">{w.label}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-gray-400 dark:text-slate-500">{w.prev.toFixed(1)}{w.unit || ''}</span>
+                    <span className="text-gray-300 dark:text-slate-600 text-xs">→</span>
+                    <span className={`text-sm font-extrabold ${w.color}`}>{w.curr.toFixed(1)}{w.unit || ''}</span>
+                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded-lg ${up ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-950/30 text-red-500'}`}>
+                      {up ? '↑' : '↓'}{Math.abs(pct)}%
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Comportamento pós-mamada */}
+      {(behaviorData.length > 0 || moodData.length > 0) && (
+        <div className="bg-white dark:bg-[#1e1640] rounded-2xl p-4 shadow-sm mb-4 transition-colors">
+          <p className="text-sm font-bold text-gray-700 dark:text-slate-200 mb-3">Comportamento pós-mamada</p>
+          {behaviorData.length > 0 && (
+            <div className="flex flex-col gap-2 mb-3">
+              {behaviorData.map(b => {
+                const pct = Math.round((b.value / totalF) * 100)
+                return (
+                  <div key={b.label}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-medium text-gray-600 dark:text-slate-400">{b.label}</span>
+                      <span className="font-bold" style={{ color: b.color }}>{b.value}x ({pct}%)</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: b.color }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          {moodData.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {moodData.map(m => (
+                <div key={m.label} className="flex items-center gap-1.5 bg-gray-50 dark:bg-[#130f2a] rounded-xl px-3 py-2">
+                  <span className="text-sm font-extrabold" style={{ color: m.color }}>{m.value}x</span>
+                  <span className="text-xs text-gray-500 dark:text-slate-400">{m.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

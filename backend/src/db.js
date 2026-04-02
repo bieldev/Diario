@@ -155,7 +155,9 @@ export const feedingQueries = {
     WHERE f.startTime >= @start ORDER BY f.startTime DESC
   `),
   last7days: db.prepare(`
-    SELECT * FROM feedings WHERE startTime >= @start ORDER BY startTime ASC
+    SELECT f.*, fn.burp, fn.hiccup, fn.spit_up, fn.behavior, fn.note AS obs_note
+    FROM feedings f LEFT JOIN feeding_notes fn ON fn.feeding_id = f.id
+    WHERE f.startTime >= @start ORDER BY f.startTime ASC
   `),
   byId:   db.prepare(`SELECT * FROM feedings WHERE id = @id`),
   update: db.prepare(`

@@ -284,11 +284,19 @@ function downloadCsv() {
   window.open('/api/history/export', '_blank')
 }
 
+const FILTERS = [
+  { value: null,      label: 'Tudo',     emoji: '📋' },
+  { value: 'feeding', label: 'Mamadas',  emoji: '🤱' },
+  { value: 'diaper',  label: 'Fraldas',  emoji: '👶' },
+  { value: 'sleep',   label: 'Sono',     emoji: '😴' },
+]
+
 export function HistoryScreen() {
   const queryClient = useQueryClient()
-  const [selectedItem, setSelectedItem] = useState(null)  // action sheet
-  const [editingItem, setEditingItem]   = useState(null)  // edit form
-  const [editForm, setEditForm]         = useState(null)  // form state (fora do EditForm para botões fixos)
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [editingItem, setEditingItem]   = useState(null)
+  const [editForm, setEditForm]         = useState(null)
+  const [filterType, setFilterType]     = useState(null)
 
   const {
     data,
@@ -297,8 +305,8 @@ export function HistoryScreen() {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['history'],
-    queryFn: ({ pageParam = 0 }) => historyApi.get({ limit: PAGE_SIZE, offset: pageParam }),
+    queryKey: ['history', filterType],
+    queryFn: ({ pageParam = 0 }) => historyApi.get({ limit: PAGE_SIZE, offset: pageParam, ...(filterType ? { type: filterType } : {}) }),
     getNextPageParam: (lastPage, allPages) => {
       const loaded = allPages.reduce((sum, p) => sum + p.items.length, 0)
       return loaded < lastPage.total ? loaded : undefined
@@ -392,6 +400,23 @@ export function HistoryScreen() {
         >
           ↓ Exportar CSV
         </button>
+      </div>
+
+      {/* Filtros */}
+      <div className="flex gap-2 mb-4">
+        {FILTERS.map(f => (
+          <button
+            key={String(f.value)}
+            onClick={() => { setFilterType(f.value) }}
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${
+              filterType === f.value
+                ? 'bg-violet-600 text-white'
+                : 'bg-white dark:bg-[#1e1640] text-gray-400 dark:text-slate-500'
+            }`}
+          >
+            {f.emoji} {f.label}
+          </button>
+        ))}
       </div>
 
       {isLoading && (
